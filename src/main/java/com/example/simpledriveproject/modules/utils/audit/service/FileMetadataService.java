@@ -1,6 +1,7 @@
 package com.example.simpledriveproject.modules.utils.audit.service;
 
 import com.example.simpledriveproject.modules.drive.dto.FileResponse;
+import com.example.simpledriveproject.modules.drive.dto.UploadRequest;
 import com.example.simpledriveproject.modules.utils.audit.model.FileMetadata;
 import com.example.simpledriveproject.modules.utils.audit.repo.FileMetadataRepo;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,9 @@ public class FileMetadataService {
         if(metadataRepo.existsById(id)) {
             throw new IllegalArgumentException("File with id" + id + "already exists.");
         }
+    }
+
+    public FileResponse getSaveResponse(UploadRequest request, long size) {
+        return FileResponse;
     }
 }
