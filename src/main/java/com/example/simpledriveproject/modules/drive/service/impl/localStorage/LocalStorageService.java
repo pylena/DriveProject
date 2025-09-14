@@ -3,6 +3,7 @@ package com.example.simpledriveproject.modules.drive.service.impl.localStorage;
 import com.example.simpledriveproject.modules.drive.dto.FileResponse;
 import com.example.simpledriveproject.modules.drive.dto.UploadRequest;
 import com.example.simpledriveproject.modules.drive.service.Iservice.DriveService;
+import com.example.simpledriveproject.modules.utils.audit.model.FileMetadata;
 import com.example.simpledriveproject.modules.utils.audit.service.FileMetadataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Base64;
 
@@ -47,6 +49,17 @@ public class LocalStorageService implements DriveService {
 
     @Override
     public FileResponse getFile(String id) {
-        return null;
+        try{
+            FileMetadata blob =   metadataService.findById(id);
+            byte[] data = storage.retrieveFile(id);
+            FileResponse response = metadataService.
+                    getResponse(id,data,  blob.getSize(), blob.getCreated_at());
+            return response;
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

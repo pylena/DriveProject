@@ -12,9 +12,13 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/v1")
-@AllArgsConstructor
+
 public class DriveController {
     final DriveService driveService;
+
+    public DriveController(DriveService driveService) {
+        this.driveService = driveService;
+    }
 
 
     @PostMapping("/blobs")
@@ -25,8 +29,10 @@ public class DriveController {
     }
 
     @PostMapping("/blobs/{id}")
-    public ResponseEntity<String> getFile(@Valid @PathVariable String id) {
-        return ResponseEntity.ok("File uploaded: " +  id);
+    public ResponseEntity<FileResponse> getFile(@Valid @PathVariable String id) {
+        FileResponse  response = driveService.getFile(id);
+
+        return ResponseEntity.ok().body(response);
 
     }
 }

@@ -22,7 +22,8 @@ public class S3Config {
         this.webClient = WebClient.builder().build();
     }
 
-
+    //private static final String accessKey
+    //private static final String secretKey
     private static final String region = "us-east-1";
     private static final String service = "s3";
     private static final String bucket = "simple-upload-drive";
@@ -33,7 +34,7 @@ public class S3Config {
     public HttpHeaders  sigV4(String method, String id, byte[] content) throws Exception {
         String key = id + ".txt";
         String urlPath = "/" + key;
-        String payload = "UNSIGNED-PAYLOAD";
+        String payload = "UNSIGNED-PAYLOAD"; //skipped payload hashing
 
         String amzDate = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
                 .withZone(ZoneOffset.UTC)
@@ -49,7 +50,7 @@ public class S3Config {
         String signedHeaders = "host;x-amz-content-sha256;x-amz-date";
         String canonicalRequest = method + "\n" +
                 urlPath + "\n" +
-                "\n" + // empty query string
+                "\n" + // for empty query string
                 canonicalHeaders + "\n" +
                 signedHeaders + "\n" +
                 payload;
@@ -61,7 +62,7 @@ public class S3Config {
                 credentialScope + "\n" +
                 sha256Hex(canonicalRequest);
 
-        // Signature
+        // signature
         byte[] signingKey = getSignatureKey(secretKey, dateStamp, region, service);
         String signature = hmacHex(signingKey, stringToSign);
 
@@ -70,7 +71,7 @@ public class S3Config {
                 "SignedHeaders=" + signedHeaders + ", " +
                 "Signature=" + signature;
 
-        // Headers
+        // headers
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authHeader);
         headers.set("x-amz-date", amzDate);
@@ -82,13 +83,10 @@ public class S3Config {
         return headers;
 
 
-
-
-
         }
 
 
-    public void sendPutRequest(String id, byte[] content) throws Exception {
+    public void upload(String id, byte[] content) throws Exception {
 
         HttpHeaders headers = sigV4("PUT", id, content);
         String urlPath = "/" + id + ".txt";
@@ -103,19 +101,19 @@ public class S3Config {
                 .block();
     }
 
-//    public byte[] getFileContent(String id) throws Exception {
-//        String url = "https://" + endpoint + "/" + id + ".txt";
-//        String payload = "UNSIGNED-PAYLOAD"; //
-//
-//        //HttpHeaders headers = sigV4("GET", id, payload);
-//
-//        return webClient.get()
-//                .uri(url)
-//                .headers(h -> h.addAll(headers))
-//                .retrieve()
-//                .bodyToMono(byte[].class)
-//                .block();
-//    }
+
+    public byte[] getFile(String id) throws Exception {
+        HttpHeaders headers = sigV4("GET", id, "".getBytes());
+        String urlPath = "/" + id + ".txt";
+        String requestUrl = "https://" + endpoint + urlPath;
+
+        return webClient.get()
+                .uri(requestUrl)
+                .headers(h -> h.addAll(headers))
+                .retrieve()
+                .bodyToMono(byte[].class)
+                .block();
+    }
 
 
 
@@ -153,7 +151,7 @@ public class S3Config {
 
 
 
-
+//ToDO change to onlu send req header
 
 
 }

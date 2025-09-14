@@ -3,6 +3,7 @@ package com.example.simpledriveproject.modules.drive.service.impl.S3;
 import com.example.simpledriveproject.modules.drive.dto.FileResponse;
 import com.example.simpledriveproject.modules.drive.dto.UploadRequest;
 import com.example.simpledriveproject.modules.drive.service.Iservice.DriveService;
+import com.example.simpledriveproject.modules.utils.audit.model.FileMetadata;
 import com.example.simpledriveproject.modules.utils.audit.service.FileMetadataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,7 +18,6 @@ import java.util.Base64;
 
 public class S3Service implements DriveService {
     private final S3Config s3;
-    private final S3test mys3;
     private final FileMetadataService metadataService;
 
 
@@ -26,8 +26,7 @@ public class S3Service implements DriveService {
         try {
             byte[] content = Base64.getDecoder().decode(request.getData());
             long size = content.length;
-            s3.sendPutRequest(request.getId(), content);
-            //mys3.send("PUT", request.getId() , content);
+            s3.upload(request.getId(), content);
             //track
             FileResponse fileResponse = new FileResponse();
             fileResponse.setId(request.getId());
@@ -44,6 +43,15 @@ public class S3Service implements DriveService {
 
     @Override
     public FileResponse getFile(String id) {
-        return null;
+       try {
+           FileMetadata blob =   metadataService.findById(id);
+           byte[] data = s3.getFile(id);
+           FileResponse response = metadataService.
+                  getResponse(id,data,  blob.getSize(), blob.getCreated_at());
+             return response;
+       }
+       catch (Exception e) {
+           throw new RuntimeException(e);
+       }
     }
 }

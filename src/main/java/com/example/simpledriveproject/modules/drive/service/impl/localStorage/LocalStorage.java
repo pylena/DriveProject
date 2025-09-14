@@ -38,8 +38,8 @@ public class LocalStorage {
 
     }
 
-    public Resource retrieveFile(String path) throws IOException {
-        Path filePath = rootPath.resolve(path).normalize().toAbsolutePath();
+    public byte[] retrieveFile(String id) throws IOException {
+        Path filePath = rootPath.resolve(id).normalize().toAbsolutePath();
         Path normalizedRoot = rootPath.normalize().toAbsolutePath();
 
         if(!filePath.startsWith(normalizedRoot)) {
@@ -48,8 +48,7 @@ public class LocalStorage {
         if(!Files.exists(filePath)) {
             throw new FileNotFoundException("File not found");
         }
-
-        return new UrlResource(filePath.toUri());
+        return Files.readAllBytes(filePath);
 
     }
 

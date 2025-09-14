@@ -10,19 +10,20 @@ import com.example.simpledriveproject.modules.utils.audit.repo.FileMetadataRepo;
 import com.example.simpledriveproject.modules.utils.audit.service.FileMetadataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Base64;
 
-
+@Service
+@ConditionalOnProperty(name = "storage.type", havingValue = "DB")
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "storage.type", havingValue = "db")
+
 public class DBService implements DriveService {
 
     private final FileRepo fileRepo;
     private final FileMetadataService metadataService;
-    private final FileMetadataRepo fileMetadataRepo;
     @Override
     @Transactional
     public FileResponse uploadFile(UploadRequest request) {
@@ -45,14 +46,25 @@ public class DBService implements DriveService {
 
          return fileResponse;
 
-
-        //
         }
 
 
     @Override
     public FileResponse getFile(String id) {
-        return null;
+        try{
+            FileMetadata blob =   metadataService.findById(id);
+            FileUpload file = fileRepo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("File content not found"));
+
+            byte[] data = file.getContent();
+            FileResponse response = metadataService.
+                    getResponse(id,data,  blob.getSize(), blob.getCreated_at());
+            return response;
+
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     }
 
