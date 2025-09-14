@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.Base64;
 
 @Service
@@ -30,7 +31,13 @@ public class LocalStorageService implements DriveService {
             long size = content.length;
             storage.saveFile(request.getId(), content);
             //track
-            return metadataService.getSaveResponse(request, size);
+            FileResponse fileResponse = new FileResponse();
+            fileResponse.setId(request.getId());
+            fileResponse.setFileSize(size);
+            fileResponse.setCreated_at(Instant.now());
+            metadataService.setTracking(fileResponse);
+            return fileResponse;
+
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file"); }

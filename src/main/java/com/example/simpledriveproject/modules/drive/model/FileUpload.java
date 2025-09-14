@@ -1,11 +1,11 @@
 package com.example.simpledriveproject.modules.drive.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
+@Entity
+@Table(name = "filesUpload")
 public class FileUpload {
     @Id
     private String id;

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 public class FileMetadataService {
@@ -18,7 +20,7 @@ public class FileMetadataService {
         FileMetadata metadata = new FileMetadata();
         metadata.setId(savedFile.getId());
         metadata.setSize(savedFile.getFileSize());
-        metadata.setCreated_at(savedFile.getCreated_at());
+        metadata.setCreated_at(Instant.now());
         metadataRepo.save(metadata);
 
     }
@@ -29,7 +31,5 @@ public class FileMetadataService {
         }
     }
 
-    public FileResponse getSaveResponse(UploadRequest request, long size) {
-        return FileResponse;
-    }
+
 }
